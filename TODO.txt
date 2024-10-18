@@ -1,0 +1,2 @@
+fyers_data only contains test code for the authentication module so far 
+complete the data module for both historical and real time data 
