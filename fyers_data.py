@@ -16,7 +16,7 @@ class Data:
         
         client_id = response["client_id"]
         access_token = response["access_token"]
-        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False,token = access_token, log_path="")
+        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False,token = access_token, log_path="./api_logs/")
         new_response = fyers.get_profile()
         if (new_response["code"] != 200):
             print("error :",response["message"])
