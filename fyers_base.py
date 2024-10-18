@@ -4,7 +4,7 @@ import requests
 import yaml
 import json
 
-class Data:
+class FyersBase:
     def __init__(self):
         self._login()
     
