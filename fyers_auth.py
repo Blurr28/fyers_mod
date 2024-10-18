@@ -4,10 +4,17 @@ import requests
 import yaml
 import json
 
-class FyersBase:
-    def __init__(self):
-        self.fyers = self._login()
+class FyersAuth:
+    _instance = None
     
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(FyersAuth, cls).__new__(cls)
+            cls._instance._login()
+        return cls._instance
+    
+    def get_fyers(self):
+        return self.fyers
 
     def _login(self) -> fyersModel.FyersModel:
         with open("auth.yaml", "r") as file:
@@ -15,8 +22,8 @@ class FyersBase:
         
         client_id = response["client_id"]
         access_token = response["access_token"]
-        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False,token = access_token, log_path="./api_logs/")
-        new_response = fyers.get_profile()
+        self.fyers = fyersModel.FyersModel(client_id=client_id, is_async=False,token = access_token, log_path="./api_logs/")
+        new_response = self.fyers.get_profile()
         if (new_response["code"] != 200):
             print("error :",response["message"])
             print("regenerating access token...")
@@ -24,9 +31,7 @@ class FyersBase:
         else:
             print("Login Succesful")
             print("Name :", new_response["data"]["name"])
-            print("Email ID:", new_response["data"]["email_id"])
-
-        return fyers        
+            print("Email ID:", new_response["data"]["email_id"])        
         
 
     def _regenerate_access_token(self, response : dict):

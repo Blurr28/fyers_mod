@@ -1,8 +1,9 @@
-from fyers_base import FyersBase
+from fyers_auth import FyersAuth
 
-class Data(FyersBase):
+class Data:
     def __init__(self):
-        super().__init__()
+        self.auth = FyersAuth()
+        self.fyers = self.auth.get_fyers()
     
     def historical_data(self, symbol : str, resolution : str, range_from : str, range_to : str, date_format : str = "1", cont_flag = "1"):
 
