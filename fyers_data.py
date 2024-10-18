@@ -1,6 +1,8 @@
 from fyers_apiv3 import fyersModel
 import webbrowser
+import requests
 import yaml
+import json
 
 class Data:
     def __init__(self):
@@ -18,11 +20,12 @@ class Data:
         new_response = fyers.get_profile()
         if (new_response["code"] != 200):
             print("error :",response["message"])
-            print("regenerating access token ...")
-            self._regenerate_access_token(response)
-        print("Login Succesful")
-        print("Name :", new_response["data"]["name"])
-        print("Email ID:", new_response["data"]["email_id"])
+            print("regenerating access token...")
+            self._regenerate_access_token_using_refresh_token(response)
+        else:
+            print("Login Succesful")
+            print("Name :", new_response["data"]["name"])
+            print("Email ID:", new_response["data"]["email_id"])
         
 
     def _regenerate_access_token(self, response : dict):
@@ -51,11 +54,40 @@ class Data:
             print("error :", new_response["message"])
         else:
             print("Access Token Generated")
-            response.update(new_response)
-            with open("auth.yaml", "w") as file:
-                yaml.dump(response, file)
-            file.close()
+            self._update_response(response=response, new_response=new_response)
             self._login()
+
+    def _regenerate_access_token_using_refresh_token(self, response : dict):
+        url = "https://api-t1.fyers.in/api/v3/validate-refresh-token"
+        headers = {"Content-Type" : "application/json"}
+        data = {
+            "grant_type": response["refresh_grant_type"],
+            "appIdHash": response["appIdHash"],
+            "refresh_token": response["refresh_token"],
+            "pin": str(response["pin"])
+        }
+
+        new_response = requests.post(url, headers=headers, data = json.dumps(data))
+        
+        if new_response.status_code != 200:
+            print("error : refresh token probably expired")
+            print("regenerating new refresh token and access token...")
+            self._regenerate_access_token(response=response)
+        else:
+            print("Access Token Generated")
+            new_response = new_response.json()
+            self._update_response(response=response, new_response=new_response)
+            self._login()
+
+
+    def _update_response(self, response : dict ,new_response : dict):
+        response.update(new_response)
+        with open("auth.yaml", "w") as file:
+            yaml.dump(response, file)
+        file.close()
+
+
+
             
 
         
