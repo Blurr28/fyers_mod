@@ -6,10 +6,10 @@ import json
 
 class FyersBase:
     def __init__(self):
-        self._login()
+        self.fyers = self._login()
     
 
-    def _login(self):
+    def _login(self) -> fyersModel.FyersModel:
         with open("auth.yaml", "r") as file:
             response = yaml.safe_load(file)
         
@@ -25,6 +25,8 @@ class FyersBase:
             print("Login Succesful")
             print("Name :", new_response["data"]["name"])
             print("Email ID:", new_response["data"]["email_id"])
+
+        return fyers        
         
 
     def _regenerate_access_token(self, response : dict):
