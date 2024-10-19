@@ -1,6 +1,7 @@
 from fyers_auth import FyersAuth
 from datetime import datetime, timedelta
 import pandas as pd
+import os 
 
 class Data:
     def __init__(self):
@@ -18,7 +19,7 @@ class Data:
         formatted_date = date_30_days_ago.strftime("%Y-%m-%d")
         return formatted_date
 
-    def historical_data(self, symbol : str):
+    def historical_data(self, symbol : str, save : bool = 0):
 
         data = {
             "symbol" : symbol, 
@@ -31,9 +32,15 @@ class Data:
         df = pd.DataFrame(response["candles"])
         df.columns = ["datetime", "open", "high", "low", "close", "volume"]
         df["datetime"] = pd.to_datetime(df["datetime"], unit = "s")
-        df["datetime"] = df["datetime"].dt.tz_localize("GMT")
-        df["datetime"] = df["datetime"].dt.tz_convert("Asia/Kolkata")
-        df["datetime"] = df["datetime"].dt.tz_localize(None)
+        if self.resolution != "D":
+            df["datetime"] = df["datetime"].dt.tz_localize("GMT")
+            df["datetime"] = df["datetime"].dt.tz_convert("Asia/Kolkata")
+            df["datetime"] = df["datetime"].dt.tz_localize(None)
+
+        if save:
+            savename = symbol[4:-3]+"-"+self.resolution+"-"+self.range_from+"-"+self.range_to
+            path = os.path.join("./data", savename+".csv")
+            df.to_csv(path)
         return df
     
     def set_param(self, resolution : str , range_from : str, range_to : str, date_format : str, cont_flag : str):
