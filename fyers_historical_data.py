@@ -31,6 +31,9 @@ class Data:
         df = pd.DataFrame(response["candles"])
         df.columns = ["datetime", "open", "high", "low", "close", "volume"]
         df["datetime"] = pd.to_datetime(df["datetime"], unit = "s")
+        df["datetime"] = df["datetime"].dt.tz_localize("GMT")
+        df["datetime"] = df["datetime"].dt.tz_convert("Asia/Kolkata")
+        df["datetime"] = df["datetime"].dt.tz_localize(None)
         return df
     
     def set_param(self, resolution : str , range_from : str, range_to : str, date_format : str, cont_flag : str):
